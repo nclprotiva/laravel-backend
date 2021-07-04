@@ -6,19 +6,14 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use JWTAuth;
 use App\Models\Product;
+use App\Models\User;
 
 class ProductController extends Controller
 {
-    protected $user;
- 
-    public function __construct()
-    {
-        $this->user = JWTAuth::parseToken()->authenticate();
-    }
     public function index()
     {
         $products = Product::orderBy('created_at', 'DESC')
-                    ->get(['title', 'description', 'price', 'image'])
+                    ->get(['id','title', 'description', 'price', 'image'])
                     ->toArray();
 
         return $products;
@@ -40,22 +35,25 @@ class ProductController extends Controller
 
     public function store(Request $request)
     {
+        $product = new Product;
         $this->validate($request, [
             'title'       => 'required',
             'description' => 'required',
-            'price'       => 'required|integer'
+            'price'       => 'required|integer',
+            // 'image'       => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048'
         ]);
     
-        $product = new Product;
-        $product->title       = $request->title;
+        $product->title       = $request->input('title');
         $product->description = $request->description;
         $product->price       = $request->price;
         $product->image       = $request->image;
-    
-        if (save($product))
-            return response()->json([
-                'success' => true,
-                'product' => $product
+
+        $product->save();        
+        
+        if ($product->save())
+        return response()->json([
+            'success' => true,
+            'product' => $product
             ]);
         else
             return response()->json([
@@ -75,8 +73,7 @@ class ProductController extends Controller
             ], 400);
         }
     
-        $updated = $product->fill($request->all())
-            ->save();
+        $updated = $product->fill($request->all())->save();
     
         if ($updated) {
             return response()->json([

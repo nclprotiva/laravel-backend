@@ -28,7 +28,7 @@ Route::group(['middleware' => 'auth.jwt'], function () {
  
     Route::get('products', 'Api\ProductController@index');
     Route::get('products/{id}', 'Api\ProductController@show');
-    Route::post('products', 'Api\ProductController@store');
-    Route::put('products/{id}', 'Api\ProductController@update');
+    Route::post('product', 'Api\ProductController@store');
+    Route::post('product-update/{id}', 'Api\ProductController@update');
     Route::delete('products/{id}', 'Api\ProductController@destroy');
 });
